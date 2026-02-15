@@ -7,10 +7,12 @@ namespace CoffeeShop.Application.Services;
 public class OrderService : IOrderService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IOrderRepository _orderRepository;
 
-    public OrderService(IProductRepository productRepository)
+    public OrderService(IProductRepository productRepository, IOrderRepository orderRepository)
     {
         _productRepository = productRepository;
+        _orderRepository = orderRepository;
     }
 
     public async Task<Order> CreateOrderAsync(CreateOrderCommand command, CancellationToken cancellationToken = default)
@@ -18,6 +20,7 @@ public class OrderService : IOrderService
         if (command.Items is null || command.Items.Count == 0)
             throw new ArgumentException("Order must have at least one item.", nameof(command));
 
+        var orderId = Guid.NewGuid();
         var orderItems = new List<OrderItem>();
 
         foreach (var item in command.Items)
@@ -29,6 +32,7 @@ public class OrderService : IOrderService
             orderItems.Add(new OrderItem
             {
                 Id = Guid.NewGuid(),
+                OrderId = orderId,
                 ProductId = product.Id,
                 Name = product.Name,
                 Price = product.Price,
@@ -38,10 +42,12 @@ public class OrderService : IOrderService
 
         var order = new Order
         {
-            Id = Guid.NewGuid(),
+            Id = orderId,
             CreatedAt = DateTime.UtcNow,
             Items = orderItems
         };
+
+        await _orderRepository.AddAsync(order, cancellationToken);
 
         return order;
     }

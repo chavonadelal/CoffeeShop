@@ -14,6 +14,7 @@ public class CoffeeShopDbContext : DbContext
     }
 
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Order> Orders => Set<Order>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +29,22 @@ public class CoffeeShopDbContext : DbContext
                 new Product { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Latte", Price = 3.50m },
                 new Product { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "Cappuccino", Price = 3.00m }
             );
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.ToTable("Orders");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp with time zone");
+            entity.HasMany(e => e.Items).WithOne().HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.ToTable("OrderItems");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Price).HasPrecision(18, 2);
         });
     }
 }
