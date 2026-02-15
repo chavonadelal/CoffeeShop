@@ -5,5 +5,5 @@ namespace CoffeeShop.Core.Interfaces;
 
 public interface IOrderService
 {
-    Order CreateOrder(CreateOrderCommand command);
+    Task<Order> CreateOrderAsync(CreateOrderCommand command, CancellationToken cancellationToken = default);
 }

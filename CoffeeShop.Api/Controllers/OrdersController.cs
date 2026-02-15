@@ -17,7 +17,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("create")]
-    public IActionResult Create([FromBody] CreateOrderDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateOrderDto dto, CancellationToken cancellationToken)
     {
         var command = new CreateOrderCommand
         {
@@ -28,7 +28,7 @@ public class OrdersController : ControllerBase
             }).ToList()
         };
 
-        var order = _orderService.CreateOrder(command);
+        var order = await _orderService.CreateOrderAsync(command, cancellationToken);
 
         return Ok(new
         {
