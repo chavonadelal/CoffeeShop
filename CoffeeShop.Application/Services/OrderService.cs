@@ -51,4 +51,9 @@ public class OrderService : IOrderService
 
         return order;
     }
+
+    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _orderRepository.GetByIdAsync(id, cancellationToken);
+    }
 }

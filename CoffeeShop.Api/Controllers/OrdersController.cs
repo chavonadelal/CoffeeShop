@@ -38,4 +38,28 @@ public class OrdersController : ControllerBase
             ItemsCount = order.Items.Count
         });
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var order = await _orderService.GetByIdAsync(id, cancellationToken);
+        if (order is null)
+            return NotFound();
+
+        return Ok(new
+        {
+            order.Id,
+            order.CreatedAt,
+            TotalAmount = order.GetTotalAmount(),
+            Items = order.Items.Select(i => new
+            {
+                i.Id,
+                i.ProductId,
+                i.Name,
+                i.Price,
+                i.Quantity,
+                LineTotal = i.Price * i.Quantity
+            })
+        });
+    }
 }
